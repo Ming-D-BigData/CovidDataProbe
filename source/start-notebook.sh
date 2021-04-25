@@ -11,8 +11,7 @@ SOURCE_DIR=/home/jovyan/source
 
 [ -d ${SAMPLE_PROGRAM_DIR} ] || mkdir ${SAMPLE_PROGRAM_DIR}
 chmod a+rwx ${SAMPLE_PROGRAM_DIR}
-[ -f ${SAMPLE_PROGRAM_DIR}/ottawa_on_ca.ipynb ] || cp ${SOURCE_DIR}/ottawa_on_ca.ipynb ${SAMPLE_PROGRAM_DIR}/ 
-[ -f ${SAMPLE_PROGRAM_DIR}/toronto_on_ca.ipynb ] || cp ${SOURCE_DIR}/toronto_on_ca.ipynb ${SAMPLE_PROGRAM_DIR}/ 
+cp -uvf ${SOURCE_DIR}/*.ipynb ${SAMPLE_PROGRAM_DIR}/ 
 
 ( cd /home/jovyan; FLASK_ENV=development FLASK_APP=main.py flask run --host=0.0.0.0 ) &
 

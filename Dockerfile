@@ -1,11 +1,9 @@
-FROM jupyter/datascience-notebook:r-4.0.3
+FROM jupyter/datascience-notebook:r-4.0.3 AS build
 
 RUN pip install Flask==1.1.2 \
     && pip install Flask-Table==0.5.0 \
     && pip install markdown==3.3.4 
 
-EXPOSE 5000
-EXPOSE 8888
 
 COPY app /home/jovyan/app
 COPY source /home/jovyan/source 
@@ -23,6 +21,8 @@ RUN cd /tmp \
     && chown 1000.1000 /home/jovyan/vol_mount
 
 VOLUME /home/jovyan/vol_mount
+EXPOSE 5000
+EXPOSE 8888
 
 USER jovyan 
 CMD ["start-notebook.sh"]

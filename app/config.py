@@ -20,6 +20,8 @@ class City:
 import os
 import shutil
 import pycurl
+from datetime import datetime
+
 def prepare_target_dir(target_dir):
     try:
         if not os.access(target_dir, os.W_OK):
@@ -53,7 +55,10 @@ def finalize_target_file(target_dir, filename):
     if os.path.exists(file_tmp):
         file_target = os.path.join(target_dir, filename)
         if os.path.exists(file_target):
-            file_archive = os.path.join(dir_archive, filename)
+            subfolder = datetime.now().isoformat(timespec='seconds')
+            dir_archive_subfolder = os.path.join(dir_archive, subfolder)
+            os.makedirs(dir_archive_subfolder, exist_ok = True)
+            file_archive = os.path.join(dir_archive_subfolder, filename)
             shutil.move(file_target, file_archive)
         shutil.move(file_tmp, file_target)
 
@@ -74,16 +79,13 @@ def curl(url, target_dir, filename):
 
 
 import json 
-from datetime import datetime
 
 ##### Ottawa, ON, CA #####
 city_ottawa_on_ca = City('Ottawa, ON, CA', None, 'https://open.ottawa.ca/datasets/6bfe7832017546e5b30c5cc6a201091b/geoservice')
 def updater_ottawa_on_ca():
     try:
         query_url = 'https://opendata.arcgis.com/datasets/6bfe7832017546e5b30c5cc6a201091b_0/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'
-        prepare_target_file(os.path.join(Config.path_data, city_ottawa_on_ca.name), Config.filename_source)
         curl(query_url, os.path.join(Config.path_data, city_ottawa_on_ca.name), Config.filename_source)
-        finalize_target_file(os.path.join(Config.path_data, city_ottawa_on_ca.name), Config.filename_source)
         return True
     except:
         return False
@@ -130,12 +132,36 @@ def get_latest_datetime_toronto_on_ca():
         with open(os.path.join(Config.path_data, city_toronto_on_ca.name, Config.filename_source)) as f:
             json_data = json.load(f)
             json_data = json_data['result']['records']
-            return datetime. strptime(max([r['Reported Date'] for r in json_data]), '%Y-%m-%d')
+            return datetime.strptime(max([r['Reported Date'] for r in json_data]), '%Y-%m-%d')
     except:
         return None
 
 city_toronto_on_ca.funcs = Updater(updater_toronto_on_ca, get_latest_datetime_toronto_on_ca)
 Config.cities[city_toronto_on_ca.name] = city_toronto_on_ca
+
+##### Whole Province, QUEBEC, CA
+import re
+quebec_ca = City('Whole Province, QUEBEC, CA', None, 'https://www.donneesquebec.ca/recherche/dataset/covid-19-portrait-quotidien-des-cas-confirmes/resource/d2cf4211-5400-46a3-9186-a81e6cd41de9')
+def updater_quebec_ca():
+    try:
+        query_url = 'https://www.donneesquebec.ca/recherche/api/3/action/datastore_search?resource_id=d2cf4211-5400-46a3-9186-a81e6cd41de9&limit=1000'
+        curl(query_url, os.path.join(Config.path_data, quebec_ca.name), Config.filename_source)
+        return True
+    except:
+        return False
+def get_latest_datetime_quebec_ca():
+    try:
+        with open(os.path.join(Config.path_data, quebec_ca.name, Config.filename_source)) as f:
+            json_data = json.load(f)
+            json_data = json_data['result']['records']
+            date_pattern = re.compile('^\d{4}-\d{2}-\d{2}$')
+            json_data = [e for e in json_data if date_pattern.search(e['Date'])]
+            return datetime.strptime(max([r['Date'] for r in json_data]), '%Y-%m-%d')
+    except:
+        return None
+
+quebec_ca.funcs = Updater(updater_quebec_ca, get_latest_datetime_quebec_ca)
+Config.cities[quebec_ca.name] = quebec_ca
 
 city_other = City('Add your own city here', None, None)
 Config.cities[city_other.name] = city_other

@@ -20,6 +20,8 @@ Some government organiztions publish limited sets of data as their data open ini
 
 Providing container name is optional. Assuming you have created a volume named "vol01" when installing Docker software.
 
+For Windows user, the easist way is to paste above line into CMD line prompt, after customizing container name and volume name "vol01". Or you can put these parameters into pop-up configuration dialog after you click "Run" in dashboard page of Docker Desktop. The params include port mapping from container's 8888 to local desktop's 2021, 5000 to 2020, and a volume mount path inside the container as "/home/jovyan/vol_mount".
+
 ###### Browse to following link on your workstation
 [http://127.0.0.1:2020](http://127.0.0.1:2020)
 
